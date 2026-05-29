@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import "./App.css";
 
 function App() {
   const [page, setPage] = useState("landing");
@@ -7,6 +8,7 @@ function App() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
+
   const [newBook, setNewBook] = useState({
     title: "",
     author: "",
@@ -66,7 +68,6 @@ function App() {
     });
 
     const createdBook = await response.json();
-
     setBooks([...books, createdBook]);
 
     setNewBook({
@@ -88,56 +89,56 @@ function App() {
     const search = searchTerm.toLowerCase();
 
     return title.includes(search) || author.includes(search);
-  }
-  );
+  });
 
   return (
-    <div style={{ padding: "30px", fontFamily: "Arial, sans-serif" }}>
-      <nav style={{ marginBottom: "30px" }}>
-        <button onClick={() => setPage("landing")}>Home</button>
-        <button onClick={() => setPage("login")} style={{ marginLeft: "10px" }}>
-          Login
-        </button>
-        <button onClick={() => setPage("catalogue")} style={{ marginLeft: "10px" }}>
-          Browse Catalogue
-        </button>
+    <div className="app">
+      <nav className="navbar">
+        <div className="brand">📚 Children's Library</div>
+
+        <div className="nav-links">
+          <button onClick={() => setPage("landing")}>Home</button>
+          <button onClick={() => setPage("catalogue")}>Browse Catalogue</button>
+          <button onClick={() => setPage("login")}>Login</button>
+        </div>
       </nav>
 
       {page === "landing" && (
-        <section style={{ textAlign: "center" }}>
-          <h1>📚 Children's Library</h1>
-          <p>Discover a magical world of stories, learning, and adventure.</p>
+        <section className="hero-section">
+          <h1>Children's Library Management System</h1>
+          <p className="page-subtitle">
+            A simple web-based system for browsing books, managing reservations,
+            and supporting library administration.
+          </p>
 
-          <button onClick={() => setPage("login")}>Get Started</button>
-          <button onClick={() => setPage("catalogue")} style={{ marginLeft: "10px" }}>
-            Browse Catalogue
-          </button>
-          <button onClick={() => setPage("login")} style={{ marginLeft: "10px" }}>
-            Sign In
-          </button>
+          <div className="action-row">
+            <button onClick={() => setPage("catalogue")}>Browse Catalogue</button>
+            <button onClick={() => setPage("login")} className="secondary-button">
+              Sign In
+            </button>
+          </div>
 
-          <h2 style={{ marginTop: "50px" }}>Why Choose Our Library?</h2>
+          <h2>Key Features</h2>
 
-          <div style={{ display: "flex", justifyContent: "center", gap: "20px", flexWrap: "wrap", marginTop: "20px" }}>
-            <FeatureCard title="Vast Collection" text="Books for all ages" />
-            <FeatureCard title="Easy Borrowing" text="Simple borrowing and returns" />
-            <FeatureCard title="24/7 Access" text="Browse and reserve anytime" />
-            <FeatureCard title="Quality Content" text="Curated books for children" />
+          <div className="card-grid">
+            <FeatureCard title="Book Catalogue" text="Browse and search children's books by title and author." />
+            <FeatureCard title="Member Access" text="Members can view borrowing activity and reservations." />
+            <FeatureCard title="Admin Tools" text="Administrators can manage books and monitor activity." />
+            <FeatureCard title="Reservations" text="Supports book availability and reservation workflows." />
           </div>
         </section>
       )}
 
       {page === "login" && (
-        <section style={{ maxWidth: "400px", margin: "0 auto" }}>
+        <section className="form-section">
           <h1>Login</h1>
-          <p>Enter demo credentials to continue.</p>
+          <p className="page-subtitle">Enter demo credentials to access the system.</p>
 
           <input
             type="email"
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
           />
 
           <input
@@ -145,53 +146,44 @@ function App() {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
           />
 
-          {loginError && <p style={{ color: "tomato" }}>{loginError}</p>}
+          {loginError && <p className="error-text">{loginError}</p>}
 
           <button onClick={handleLogin}>Login</button>
 
-          <p style={{ marginTop: "20px", fontSize: "14px" }}>
-            Demo Accounts:
-            <br />
-            Member: member@library.com / password123
-            <br />
-            Admin: admin@library.com / password123
-          </p>
+          <div className="demo-box">
+            <strong>Demo Accounts</strong>
+            <p>Member: member@library.com / password123</p>
+            <p>Admin: admin@library.com / password123</p>
+          </div>
         </section>
       )}
 
       {page === "catalogue" && (
         <section>
           <h1>Browse Catalogue</h1>
+          <p className="page-subtitle">
+            Search available children's books and view borrowing options.
+          </p>
 
           <input
             type="text"
             placeholder="Search by title or author..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            style={{ padding: "10px", width: "300px", marginBottom: "20px" }}
+            className="search-input"
           />
 
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
+          <div className="book-grid">
             {filteredBooks.map((book) => {
               const isAvailable = book.availableCopies > 0;
 
               return (
-                <div
-                  key={book._id}
-                  style={{
-                    border: "1px solid #444",
-                    borderRadius: "12px",
-                    padding: "20px",
-                    width: "280px",
-                    backgroundColor: "#1a1a1a",
-                  }}
-                >
-                  <strong style={{ color: isAvailable ? "lightgreen" : "tomato" }}>
-                    {isAvailable ? "✅ Available" : "❌ Unavailable"}
-                  </strong>
+                <div key={book._id} className="book-card">
+                  <span className={isAvailable ? "status available" : "status unavailable"}>
+                    {isAvailable ? "Available" : "Unavailable"}
+                  </span>
 
                   <h3>{book.title}</h3>
                   <p>by {book.author}</p>
@@ -199,8 +191,10 @@ function App() {
                   <p><strong>Age Range:</strong> {book.ageRange}</p>
                   <p>{book.availableCopies} of {book.copies} available</p>
 
-                  <button>{isAvailable ? "Borrow Book" : "Reserve Book"}</button>
-                  <button style={{ marginLeft: "8px" }}>View Details</button>
+                  <div className="action-row">
+                    <button>{isAvailable ? "Borrow Book" : "Reserve Book"}</button>
+                    <button className="secondary-button">View Details</button>
+                  </div>
                 </div>
               );
             })}
@@ -211,12 +205,30 @@ function App() {
       {page === "member" && (
         <section>
           <h1>Member Dashboard</h1>
-          <p>Welcome, Member.</p>
-          <ul>
-            <li>Borrowed Books: 2</li>
-            <li>Reservations: 1 pending</li>
-            <li>Notifications: 1 overdue reminder</li>
-          </ul>
+          <p className="page-subtitle">
+            Welcome back. View your borrowing activity and continue browsing books.
+          </p>
+
+          <div className="card-grid">
+            <div className="dashboard-card">
+              <h3>Borrowed Books</h3>
+              <p className="stat-number">2</p>
+              <p>Books currently borrowed.</p>
+            </div>
+
+            <div className="dashboard-card">
+              <h3>Reservations</h3>
+              <p className="stat-number">1</p>
+              <p>Pending reservation request.</p>
+            </div>
+
+            <div className="dashboard-card">
+              <h3>Notifications</h3>
+              <p className="stat-number">1</p>
+              <p>Overdue reminder requires attention.</p>
+            </div>
+          </div>
+
           <button onClick={() => setPage("catalogue")}>Browse Books</button>
         </section>
       )}
@@ -224,131 +236,76 @@ function App() {
       {page === "admin" && (
         <section>
           <h1>Admin Dashboard</h1>
+          <p className="page-subtitle">
+            Manage books, members, reservations, and library activity.
+          </p>
 
-          <p>Welcome, Admin.</p>
+          <div className="card-grid">
+            <div className="dashboard-card">
+              <h3>Total Books</h3>
+              <p className="stat-number">{books.length}</p>
+              <p>Books currently stored in the catalogue.</p>
+            </div>
 
-          <ul>
-            <li>Total Books: {books.length}</li>
-            <li>Manage books, members, reservations and reports</li>
-          </ul>
+            <div className="dashboard-card">
+              <h3>Book Management</h3>
+              <p>Add, edit, and remove book records.</p>
+            </div>
 
-          <button onClick={() => setPage("catalogue")}>
-            View Catalogue
-          </button>
+            <div className="dashboard-card">
+              <h3>Library Activity</h3>
+              <p>Monitor members, reservations, and reports.</p>
+            </div>
+          </div>
 
-          <button
-            onClick={() => setPage("manageBooks")}
-            style={{ marginLeft: "10px" }}
-          >
-            Manage Books
-          </button>
+          <div className="action-row">
+            <button onClick={() => setPage("catalogue")}>View Catalogue</button>
+            <button onClick={() => setPage("manageBooks")}>Manage Books</button>
+          </div>
         </section>
       )}
 
       {page === "manageBooks" && (
         <section>
           <h1>Manage Books</h1>
-          <p>Admin can add, edit and delete book records.</p>
+          <p className="page-subtitle">
+            Add new book records and manage existing catalogue entries.
+          </p>
 
-          <form
-            onSubmit={addBook}
-            style={{
-              border: "1px solid #444",
-              padding: "20px",
-              borderRadius: "12px",
-              marginBottom: "30px",
-              maxWidth: "600px",
-            }}
-          >
+          <form onSubmit={addBook} className="book-form">
             <h2>Add New Book</h2>
 
-            <input
-              placeholder="Title"
-              value={newBook.title}
-              onChange={(e) => setNewBook({ ...newBook, title: e.target.value })}
-              style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
-            />
-
-            <input
-              placeholder="Author"
-              value={newBook.author}
-              onChange={(e) => setNewBook({ ...newBook, author: e.target.value })}
-              style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
-            />
-
-            <input
-              placeholder="ISBN"
-              value={newBook.isbn}
-              onChange={(e) => setNewBook({ ...newBook, isbn: e.target.value })}
-              style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
-            />
-
-            <input
-              placeholder="Category"
-              value={newBook.category}
-              onChange={(e) => setNewBook({ ...newBook, category: e.target.value })}
-              style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
-            />
-
-            <input
-              placeholder="Age Range"
-              value={newBook.ageRange}
-              onChange={(e) => setNewBook({ ...newBook, ageRange: e.target.value })}
-              style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
-            />
-
-            <input
-              placeholder="Total Copies"
-              type="number"
-              value={newBook.copies}
-              onChange={(e) => setNewBook({ ...newBook, copies: e.target.value })}
-              style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
-            />
-
-            <input
-              placeholder="Available Copies"
-              type="number"
-              value={newBook.availableCopies}
-              onChange={(e) =>
-                setNewBook({ ...newBook, availableCopies: e.target.value })
-              }
-              style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
-            />
+            <input placeholder="Title" value={newBook.title} onChange={(e) => setNewBook({ ...newBook, title: e.target.value })} />
+            <input placeholder="Author" value={newBook.author} onChange={(e) => setNewBook({ ...newBook, author: e.target.value })} />
+            <input placeholder="ISBN" value={newBook.isbn} onChange={(e) => setNewBook({ ...newBook, isbn: e.target.value })} />
+            <input placeholder="Category" value={newBook.category} onChange={(e) => setNewBook({ ...newBook, category: e.target.value })} />
+            <input placeholder="Age Range" value={newBook.ageRange} onChange={(e) => setNewBook({ ...newBook, ageRange: e.target.value })} />
+            <input placeholder="Total Copies" type="number" value={newBook.copies} onChange={(e) => setNewBook({ ...newBook, copies: e.target.value })} />
+            <input placeholder="Available Copies" type="number" value={newBook.availableCopies} onChange={(e) => setNewBook({ ...newBook, availableCopies: e.target.value })} />
 
             <textarea
               placeholder="Description"
               value={newBook.description}
               onChange={(e) => setNewBook({ ...newBook, description: e.target.value })}
-              style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
             />
 
             <button type="submit">Add Book</button>
           </form>
 
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
+          <div className="book-grid">
             {books.map((book) => (
-              <div
-                key={book._id}
-                style={{
-                  border: "1px solid #444",
-                  borderRadius: "12px",
-                  padding: "20px",
-                  width: "280px",
-                  backgroundColor: "#1a1a1a",
-                }}
-              >
+              <div key={book._id} className="book-card">
                 <h3>{book.title}</h3>
-                <p>Author: {book.author}</p>
-                <p>ISBN: {book.isbn}</p>
+                <p><strong>Author:</strong> {book.author}</p>
+                <p><strong>ISBN:</strong> {book.isbn}</p>
                 <p>{book.availableCopies} of {book.copies} available</p>
 
-                <button>Edit</button>
-                <button
-                  style={{ marginLeft: "8px" }}
-                  onClick={() => deleteBook(book._id)}
-                >
-                  Delete
-                </button>
+                <div className="action-row">
+                  <button>Edit</button>
+                  <button className="danger-button" onClick={() => deleteBook(book._id)}>
+                    Delete
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -360,7 +317,7 @@ function App() {
 
 function FeatureCard({ title, text }) {
   return (
-    <div style={{ border: "1px solid #444", borderRadius: "12px", padding: "20px", width: "220px", backgroundColor: "#1a1a1a" }}>
+    <div className="dashboard-card">
       <h3>{title}</h3>
       <p>{text}</p>
     </div>
