@@ -1,0 +1,33 @@
+# Node
+node_modules/
+npm-debug.log*
+
+# Build folders
+dist/
+build/
+
+# Environment variables
+.env
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# Passwords
+*Password*.txt
+
+# Course materials
+*Course Notes*
+
+# Word recovery files
+*AutoRecovered*
+
+# Logs
+*.log
+
+# Coverage reports
+coverage/
