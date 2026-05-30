@@ -360,3 +360,10 @@ select {
 .modal-content h2 {
   margin-top: 0;
 }
+
+.dashboard-card li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
