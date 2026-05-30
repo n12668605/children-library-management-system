@@ -77,6 +77,22 @@ function App() {
     alert(`You have borrowed "${book.title}".`);
   };
 
+  const returnBook = (bookToReturn, borrowedIndex) => {
+  setBorrowedBooks(
+    borrowedBooks.filter((_, index) => index !== borrowedIndex)
+  );
+
+  setBooks(
+    books.map((book) =>
+      book._id === bookToReturn._id
+        ? { ...book, availableCopies: book.availableCopies + 1 }
+        : book
+    )
+  );
+
+  alert(`You have returned "${bookToReturn.title}".`);
+};
+
   const deleteBook = async (id) => {
     try {
       await fetch(`http://localhost:5000/api/books/${id}`, {
@@ -393,7 +409,13 @@ function App() {
               <ul>
                 {borrowedBooks.map((book, index) => (
                   <li key={`${book._id}-${index}`}>
-                    {book.title} by {book.author}
+                    <span>{book.title} by {book.author}</span>
+                    <button
+                      className="secondary-button"
+                      onClick={() => returnBook(book, index)}
+                    >
+                      Return Book
+                    </button>
                   </li>
                 ))}
               </ul>
