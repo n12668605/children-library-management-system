@@ -5,6 +5,8 @@ function App() {
   const [page, setPage] = useState("landing");
   const [books, setBooks] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [ageRangeFilter, setAgeRangeFilter] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
@@ -86,9 +88,15 @@ function App() {
   const filteredBooks = books.filter((book) => {
     const title = book.title?.toLowerCase() || "";
     const author = book.author?.toLowerCase() || "";
+    const category = book.category || "";
+    const ageRange = book.ageRange || "";
     const search = searchTerm.toLowerCase();
 
-    return title.includes(search) || author.includes(search);
+    const matchesSearch = title.includes(search) || author.includes(search);
+    const matchesCategory = categoryFilter === "" || category === categoryFilter;
+    const matchesAgeRange = ageRangeFilter === "" || ageRange === ageRangeFilter;
+
+    return matchesSearch && matchesCategory && matchesAgeRange;
   });
 
   return (
@@ -174,6 +182,48 @@ function App() {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
           />
+
+          <div className="filter-row">
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+            >
+              <option value="">All Categories</option>
+              <option value="Chapter Books">Chapter Books</option>
+              <option value="Fantasy">Fantasy</option>
+              <option value="Picture Books">Picture Books</option>
+              <option value="Realistic Fiction">Realistic Fiction</option>
+            </select>
+
+            <select
+              value={ageRangeFilter}
+              onChange={(e) => setAgeRangeFilter(e.target.value)}
+            >
+              <option value="">All Age Ranges</option>
+              <option value="0-5 years">0-5 years</option>
+              <option value="3-7 years">3-7 years</option>
+              <option value="4-8 years">4-8 years</option>
+              <option value="8-12 years">8-12 years</option>
+            </select>
+
+            <button
+              className="secondary-button"
+              onClick={() => {
+                setSearchTerm("");
+                setCategoryFilter("");
+                setAgeRangeFilter("");
+              }}
+            >
+              Clear Filters
+            </button>
+          </div>
+
+          {filteredBooks.length === 0 && (
+            <div className="dashboard-card">
+              <h3>No books found</h3>
+              <p>Try changing the search term, category, or age range filter.</p>
+            </div>
+          )}
 
           <div className="book-grid">
             {filteredBooks.map((book) => {
