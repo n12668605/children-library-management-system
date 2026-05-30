@@ -335,3 +335,28 @@ select {
 .dashboard-card li:last-child {
   border-bottom: none;
 }
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  color: #1f2937;
+  padding: 30px;
+  border-radius: 16px;
+  max-width: 520px;
+  width: 100%;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+}
+
+.modal-content h2 {
+  margin-top: 0;
+}

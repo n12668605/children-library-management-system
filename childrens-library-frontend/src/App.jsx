@@ -12,6 +12,7 @@ function App() {
   const [loginError, setLoginError] = useState("");
   const [userRole, setUserRole] = useState("guest");
   const [borrowedBooks, setBorrowedBooks] = useState([]);
+  const [selectedBook, setSelectedBook] = useState(null);
 
   const [newBook, setNewBook] = useState({
     title: "",
@@ -320,12 +321,39 @@ function App() {
                             ? "Borrow Book"
                             : "Unavailable"}
                     </button>
-                    <button className="secondary-button">View Details</button>
+                    <button
+                      className="secondary-button"
+                      onClick={() => setSelectedBook(book)}
+                    >
+                      View Details
+                    </button>
                   </div>
                 </div>
               );
             })}
           </div>
+          {selectedBook && (
+            <div className="modal-overlay">
+              <div className="modal-content">
+                <h2>{selectedBook.title}</h2>
+
+                <p><strong>Author:</strong> {selectedBook.author}</p>
+                <p><strong>ISBN:</strong> {selectedBook.isbn}</p>
+                <p><strong>Category:</strong> {selectedBook.category}</p>
+                <p><strong>Age Range:</strong> {selectedBook.ageRange}</p>
+                <p><strong>Description:</strong> {selectedBook.description}</p>
+
+                <p>
+                  <strong>Availability:</strong>{" "}
+                  {selectedBook.availableCopies} of {selectedBook.copies} copies available
+                </p>
+
+                <button onClick={() => setSelectedBook(null)}>
+                  Close
+                </button>
+              </div>
+            </div>
+          )}
         </section>
       )}
 
@@ -466,7 +494,7 @@ function App() {
               </div>
             ))}
           </div>
-        </section>
+         </section>
       )}
     </div>
   );
