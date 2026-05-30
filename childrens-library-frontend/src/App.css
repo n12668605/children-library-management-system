@@ -312,3 +312,11 @@ select {
 .filter-row select {
   min-width: 180px;
 }
+
+.admin-task-card {
+  margin-top: 24px;
+}
+
+.left-actions {
+  justify-content: flex-start;
+}

@@ -287,30 +287,44 @@ function App() {
         <section>
           <h1>Admin Dashboard</h1>
           <p className="page-subtitle">
-            Manage books, members, reservations, and library activity.
+            Manage catalogue records, monitor availability, and support library operations.
           </p>
 
           <div className="card-grid">
             <div className="dashboard-card">
               <h3>Total Books</h3>
               <p className="stat-number">{books.length}</p>
-              <p>Books currently stored in the catalogue.</p>
+              <p>Catalogue records currently stored in the system.</p>
             </div>
 
             <div className="dashboard-card">
-              <h3>Book Management</h3>
-              <p>Add, edit, and remove book records.</p>
+              <h3>Available Books</h3>
+              <p className="stat-number">
+                {books.reduce((total, book) => total + Number(book.availableCopies || 0), 0)}
+              </p>
+              <p>Total copies currently available for borrowing.</p>
             </div>
 
             <div className="dashboard-card">
-              <h3>Library Activity</h3>
-              <p>Monitor members, reservations, and reports.</p>
+              <h3>Reservations</h3>
+              <p className="stat-number">1</p>
+              <p>Pending reservation requests requiring staff review.</p>
             </div>
           </div>
 
-          <div className="action-row">
-            <button onClick={() => setPage("catalogue")}>View Catalogue</button>
-            <button onClick={() => setPage("manageBooks")}>Manage Books</button>
+          <div className="dashboard-card admin-task-card">
+            <h3>Admin Tasks</h3>
+            <p>
+              Use the admin tools to add new books, update catalogue information,
+              remove outdated records, and review library activity.
+            </p>
+
+            <div className="action-row left-actions">
+              <button onClick={() => setPage("manageBooks")}>Manage Books</button>
+              <button className="secondary-button" onClick={() => setPage("catalogue")}>
+                View Catalogue
+              </button>
+            </div>
           </div>
         </section>
       )}
