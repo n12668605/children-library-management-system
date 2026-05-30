@@ -141,7 +141,42 @@ function App() {
         <div className="nav-links">
           <button onClick={() => setPage("landing")}>Home</button>
           <button onClick={() => setPage("catalogue")}>Browse Catalogue</button>
-          <button onClick={() => setPage("login")}>Login</button>
+
+          {userRole === "guest" ? (
+            <button onClick={() => setPage("login")}>Login</button>
+          ) : userRole === "member" ? (
+            <>
+              <button onClick={() => setPage("member")}>Member Dashboard</button>
+              <button
+                className="secondary-button"
+                onClick={() => {
+                  setUserRole("guest");
+                  setBorrowedBooks([]);
+                  setEmail("");
+                  setPassword("");
+                  setPage("landing");
+                }}
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <button onClick={() => setPage("admin")}>Admin Dashboard</button>
+              <button
+                className="secondary-button"
+                onClick={() => {
+                  setUserRole("guest");
+                  setBorrowedBooks([]);
+                  setEmail("");
+                  setPassword("");
+                  setPage("landing");
+                }}
+              >
+                Logout
+              </button>
+            </>
+          )}
         </div>
       </nav>
 
