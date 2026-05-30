@@ -300,3 +300,15 @@ select {
     font-size: 32px;
   }
 }
+
+.filter-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.filter-row select {
+  min-width: 180px;
+}
