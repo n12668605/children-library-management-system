@@ -10,6 +10,8 @@ function App() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
+  const [userRole, setUserRole] = useState("guest");
+  const [borrowedBooks, setBorrowedBooks] = useState([]);
 
   const [newBook, setNewBook] = useState({
     title: "",
@@ -32,14 +34,46 @@ function App() {
 
   const handleLogin = () => {
     if (email === "admin@library.com" && password === "password123") {
+      setUserRole("admin");
       setLoginError("");
       setPage("admin");
     } else if (email === "member@library.com" && password === "password123") {
+      setUserRole("member");
       setLoginError("");
       setPage("member");
     } else {
       setLoginError("Invalid email or password.");
     }
+  };
+
+  const borrowBook = (book) => {
+    if (userRole === "guest") {
+      alert("Please log in as a member to borrow books.");
+      setPage("login");
+      return;
+    }
+
+    if (userRole !== "member") {
+      alert("Only members can borrow books.");
+      return;
+    }
+
+    if (book.availableCopies <= 0) {
+      alert("This book is currently unavailable.");
+      return;
+    }
+
+    setBooks(
+      books.map((item) =>
+        item._id === book._id
+          ? { ...item, availableCopies: item.availableCopies - 1 }
+          : item
+      )
+    );
+
+    setBorrowedBooks([...borrowedBooks, book]);
+
+    alert(`You have borrowed "${book.title}".`);
   };
 
   const deleteBook = async (id) => {
@@ -242,7 +276,15 @@ function App() {
                   <p>{book.availableCopies} of {book.copies} available</p>
 
                   <div className="action-row">
-                    <button>{isAvailable ? "Borrow Book" : "Reserve Book"}</button>
+                    <button onClick={() => borrowBook(book)}>
+                      {userRole === "guest"
+                        ? "Login to Borrow"
+                        : userRole === "admin"
+                          ? "Members Only"
+                          : isAvailable
+                            ? "Borrow Book"
+                            : "Unavailable"}
+                    </button>
                     <button className="secondary-button">View Details</button>
                   </div>
                 </div>
@@ -262,7 +304,7 @@ function App() {
           <div className="card-grid">
             <div className="dashboard-card">
               <h3>Borrowed Books</h3>
-              <p className="stat-number">2</p>
+              <p className="stat-number">{borrowedBooks.length}</p>
               <p>Books currently borrowed.</p>
             </div>
 
@@ -277,6 +319,22 @@ function App() {
               <p className="stat-number">1</p>
               <p>Overdue reminder requires attention.</p>
             </div>
+          </div>
+
+          <div className="dashboard-card admin-task-card">
+            <h3>Borrowed Book List</h3>
+
+            {borrowedBooks.length === 0 ? (
+              <p>No books borrowed yet.</p>
+            ) : (
+              <ul>
+                {borrowedBooks.map((book, index) => (
+                  <li key={`${book._id}-${index}`}>
+                    {book.title} by {book.author}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
           <button onClick={() => setPage("catalogue")}>Browse Books</button>
