@@ -189,104 +189,145 @@ const saveBookChanges = async () => {
 
   return (
     <div className="app">
-      <nav className="navbar">
-        <div className="brand">📚 Children's Library</div>
+      {page !== "landing" && (
+        <nav className="top-bar">
+          <button className="back-link" onClick={() => setPage("landing")}>
+            ← Back to Home
+          </button>
 
-        <div className="nav-links">
-          <button onClick={() => setPage("landing")}>Home</button>
-          <button onClick={() => setPage("catalogue")}>Browse Catalogue</button>
+          <h2 className="page-nav-title">
+            {page === "catalogue" && "Browse Our Collection"}
+            {page === "login" && "Sign In"}
+            {page === "member" && "Member Dashboard"}
+            {page === "admin" && "Admin Dashboard"}
+            {page === "manageBooks" && "Manage Books"}
+          </h2>
 
-          {userRole === "guest" ? (
-            <button onClick={() => setPage("login")}>Login</button>
-          ) : userRole === "member" ? (
-            <>
-              <button onClick={() => setPage("member")}>Member Dashboard</button>
-              <button
-                className="secondary-button"
-                onClick={() => {
-                  setUserRole("guest");
-                  setBorrowedBooks([]);
-                  setEmail("");
-                  setPassword("");
-                  setPage("landing");
-                }}
-              >
-                Logout
-              </button>
-            </>
-          ) : (
-            <>
-              <button onClick={() => setPage("admin")}>Admin Dashboard</button>
-              <button
-                className="secondary-button"
-                onClick={() => {
-                  setUserRole("guest");
-                  setBorrowedBooks([]);
-                  setEmail("");
-                  setPassword("");
-                  setPage("landing");
-                }}
-              >
-                Logout
-              </button>
-            </>
-          )}
-        </div>
-      </nav>
+          <div className="top-bar-actions">
+            {userRole === "guest" ? (
+              <>
+                <button className="outline-button" onClick={() => setPage("login")}>
+                  Sign In
+                </button>
+                <button onClick={() => setPage("login")}>
+                  Register
+                </button>
+              </>
+            ) : userRole === "member" ? (
+              <>
+                <button className="outline-button" onClick={() => setPage("member")}>
+                  Dashboard
+                </button>
+                <button
+                  onClick={() => {
+                    setUserRole("guest");
+                    setBorrowedBooks([]);
+                    setEmail("");
+                    setPassword("");
+                    setPage("landing");
+                  }}
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <button className="outline-button" onClick={() => setPage("admin")}>
+                  Admin Dashboard
+                </button>
+                <button
+                  onClick={() => {
+                    setUserRole("guest");
+                    setBorrowedBooks([]);
+                    setEmail("");
+                    setPassword("");
+                    setPage("landing");
+                  }}
+                >
+                  Logout
+                </button>
+              </>
+            )}
+          </div>
+        </nav>
+      )}
 
       {page === "landing" && (
-        <section className="hero-section">
-          <h1>Children's Library Management System</h1>
-          <p className="page-subtitle">
-            A simple web-based system for browsing books, managing reservations,
-            and supporting library administration.
+        <section className="landing-page">
+          <div className="hero-icon">📚</div>
+
+          <h1 className="hero-title">Children's Library</h1>
+
+          <p className="hero-subtitle">
+            Discover a magical world of stories, learning, and adventure
           </p>
 
-          <div className="action-row">
-            <button onClick={() => setPage("catalogue")}>Browse Catalogue</button>
-            <button onClick={() => setPage("login")} className="secondary-button">
+          <div className="hero-actions">
+            <button onClick={() => setPage("catalogue")}>Get Started →</button>
+            <button className="outline-button" onClick={() => setPage("catalogue")}>
+              Browse Catalogue
+            </button>
+            <button className="link-button" onClick={() => setPage("login")}>
               Sign In
             </button>
           </div>
 
-          <h2>Key Features</h2>
+          <h2 className="section-title">Why Choose Our Library?</h2>
 
-          <div className="card-grid">
-            <FeatureCard title="Book Catalogue" text="Browse and search children's books by title and author." />
-            <FeatureCard title="Member Access" text="Members can view borrowing activity and reservations." />
-            <FeatureCard title="Admin Tools" text="Administrators can manage books and monitor activity." />
-            <FeatureCard title="Reservations" text="Supports book availability and reservation workflows." />
+          <div className="feature-grid">
+            <FeatureCard title="Vast Collection" text="A growing catalogue of books for all ages." />
+            <FeatureCard title="Easy Management" text="Simple borrowing, returns, and book management." />
+            <FeatureCard title="24/7 Access" text="Browse the catalogue and manage activity anytime." />
+            <FeatureCard title="Quality Content" text="Curated children’s books with useful details." />
+          </div>
+
+          <div className="cta-panel">
+            <h2>Ready to Start Reading?</h2>
+            <p>Join our community of young readers today</p>
+            <button onClick={() => setPage("login")}>Create Free Account</button>
           </div>
         </section>
       )}
 
       {page === "login" && (
-        <section className="form-section">
-          <h1>Login</h1>
-          <p className="page-subtitle">Enter demo credentials to access the system.</p>
+        <section className="login-page">
+          <div className="login-card">
+            <div className="hero-icon">📚</div>
 
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
+            <h1>Welcome Back</h1>
+            <p className="page-subtitle">Sign in to your library account</p>
 
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+            <div className="demo-box">
+              <strong>Demo Credentials:</strong>
+              <p>Member: member@library.com / password123</p>
+              <p>Admin: admin@library.com / password123</p>
+            </div>
 
-          {loginError && <p className="error-text">{loginError}</p>}
+            <label>Email Address *</label>
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
 
-          <button onClick={handleLogin}>Login</button>
+            <label>Password *</label>
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
 
-          <div className="demo-box">
-            <strong>Demo Accounts</strong>
-            <p>Member: member@library.com / password123</p>
-            <p>Admin: admin@library.com / password123</p>
+            {loginError && <p className="error-text">{loginError}</p>}
+
+            <button className="gradient-button" onClick={handleLogin}>
+              Sign In
+            </button>
+
+            <p className="register-text">
+              Don't have an account? <span>Register here</span>
+            </p>
           </div>
         </section>
       )}
@@ -298,15 +339,14 @@ const saveBookChanges = async () => {
             Search available children's books and view borrowing options.
           </p>
 
-          <input
-            type="text"
-            placeholder="Search by title or author..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
-          />
-
           <div className="filter-row">
+            <input
+              type="text"
+              placeholder="Search by title or author..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+            />
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
@@ -353,7 +393,10 @@ const saveBookChanges = async () => {
               const isAvailable = book.availableCopies > 0;
 
               return (
-                <div key={book._id} className="book-card">
+                <div key={book._id} className="book-card manage-books-card">
+                  <div className="book-image">
+                    📖
+                  </div>
                   <span className={isAvailable ? "status available" : "status unavailable"}>
                     {isAvailable ? "Available" : "Unavailable"}
                   </span>
@@ -411,102 +454,247 @@ const saveBookChanges = async () => {
       )}
 
       {page === "member" && (
-        <section>
-          <h1>Member Dashboard</h1>
-          <p className="page-subtitle">
-            Welcome back. View your borrowing activity and continue browsing books.
-          </p>
+        <section className="member-layout">
+          <aside className="member-sidebar">
+            <h2>📚 Kids Library</h2>
+            <p>Member Portal</p>
 
-          <div className="card-grid">
-            <div className="dashboard-card">
-              <h3>Borrowed Books</h3>
-              <p className="stat-number">{borrowedBooks.length}</p>
-              <p>Books currently borrowed.</p>
+            <button>Dashboard</button>
+            <button onClick={() => setPage("catalogue")}>Browse Books</button>
+            <button>My Books</button>
+            <button>Reservations</button>
+            <button>Notifications</button>
+
+            <div className="member-profile">
+              <strong>Member User</strong>
+              <p>member@library.com</p>
             </div>
 
-            <div className="dashboard-card">
-              <h3>Reservations</h3>
-              <p className="stat-number">1</p>
-              <p>Pending reservation request.</p>
+            <button
+              className="logout-button"
+              onClick={() => {
+                setUserRole("guest");
+                setBorrowedBooks([]);
+                setPage("landing");
+              }}
+            >
+              Logout
+            </button>
+          </aside>
+
+          <main className="member-main">
+            <div className="member-topline">
+              <h3>Welcome, Member User!</h3>
+              <p>Today: Sunday, May 31, 2026</p>
             </div>
 
-            <div className="dashboard-card">
-              <h3>Notifications</h3>
-              <p className="stat-number">1</p>
-              <p>Overdue reminder requires attention.</p>
+            <h1>Dashboard</h1>
+            <p className="page-subtitle">Welcome to your library portal</p>
+
+            <div className="member-stats">
+              <div className="stat-card">
+                <div>
+                  <p>Books Borrowed</p>
+                  <h2>{borrowedBooks.length}</h2>
+                </div>
+                <span>📖</span>
+              </div>
+
+              <div className="stat-card">
+                <div>
+                  <p>Active Reservations</p>
+                  <h2>1</h2>
+                </div>
+                <span>📅</span>
+              </div>
+
+              <div className="stat-card">
+                <div>
+                  <p>Overdue Books</p>
+                  <h2>0</h2>
+                </div>
+                <span>⚠️</span>
+              </div>
+
+              <div className="stat-card">
+                <div>
+                  <p>Unread Notifications</p>
+                  <h2>1</h2>
+                </div>
+                <span>🔔</span>
+              </div>
             </div>
-          </div>
 
-          <div className="dashboard-card admin-task-card">
-            <h3>Borrowed Book List</h3>
+            <div className="member-panels">
+              <div className="dashboard-card">
+                <h3>Currently Borrowed</h3>
 
-            {borrowedBooks.length === 0 ? (
-              <p>No books borrowed yet.</p>
-            ) : (
-              <ul>
-                {borrowedBooks.map((book, index) => (
-                  <li key={`${book._id}-${index}`}>
-                    <span>{book.title} by {book.author}</span>
+                {borrowedBooks.length === 0 ? (
+                  <p>No books borrowed yet.</p>
+                ) : (
+                  borrowedBooks.map((book, index) => (
+                    <div className="borrowed-row" key={`${book._id}-${index}`}>
+                      <div className="mini-cover">📖</div>
+                      <div>
+                        <h4>{book.title}</h4>
+                        <p>by {book.author}</p>
+                        <button
+                          className="secondary-button"
+                          onClick={() => returnBook(book, index)}
+                        >
+                          Return Book
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
 
-                    <button
-                      className="secondary-button"
-                      onClick={() => returnBook(book, index)}
-                    >
-                      Return Book
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+                <button className="wide-button" onClick={() => setPage("catalogue")}>
+                  View All
+                </button>
+              </div>
 
-          <button onClick={() => setPage("catalogue")}>Browse Books</button>
+              <div className="dashboard-card">
+                <h3>Active Reservations</h3>
+
+                <div className="borrowed-row">
+                  <div className="mini-cover">📚</div>
+                  <div>
+                    <h4>Harry Potter and the Philosopher's Stone</h4>
+                    <p>Reserved: Demo data</p>
+                    <span className="small-badge">Pending</span>
+                  </div>
+                </div>
+
+                <button className="wide-button">View All</button>
+              </div>
+            </div>
+
+            <div className="dashboard-card quick-actions">
+              <h3>Quick Actions</h3>
+              <button onClick={() => setPage("catalogue")}>Browse Books</button>
+              <button className="outline-button">My Reservations</button>
+              <button className="outline-button">Edit Profile</button>
+            </div>
+          </main>
         </section>
       )}
 
       {page === "admin" && (
-        <section>
-          <h1>Admin Dashboard</h1>
-          <p className="page-subtitle">
-            Manage catalogue records, monitor availability, and support library operations.
-          </p>
+        <section className="admin-layout">
+          <aside className="admin-sidebar">
+            <h2>🛡️ Kids Library</h2>
+            <p>Admin Panel</p>
 
-          <div className="card-grid">
-            <div className="dashboard-card">
-              <h3>Total Books</h3>
-              <p className="stat-number">{books.length}</p>
-              <p>Catalogue records currently stored in the system.</p>
+            <button>Dashboard</button>
+            <button onClick={() => setPage("manageBooks")}>Manage Books</button>
+            <button>Manage Members</button>
+            <button>Reservations</button>
+            <button>Reports</button>
+
+            <div className="member-profile">
+              <strong>Admin User</strong>
+              <p>Administrator</p>
             </div>
 
-            <div className="dashboard-card">
-              <h3>Available Books</h3>
-              <p className="stat-number">
-                {books.reduce((total, book) => total + Number(book.availableCopies || 0), 0)}
-              </p>
-              <p>Total copies currently available for borrowing.</p>
+            <button
+              className="logout-button"
+              onClick={() => {
+                setUserRole("guest");
+                setEmail("");
+                setPassword("");
+                setPage("landing");
+              }}
+            >
+              Logout
+            </button>
+          </aside>
+
+          <main className="admin-main">
+            <div className="member-topline">
+              <h3>Admin Dashboard</h3>
+              <p>Sunday, May 31, 2026</p>
             </div>
 
-            <div className="dashboard-card">
-              <h3>Reservations</h3>
-              <p className="stat-number">1</p>
-              <p>Pending reservation requests requiring staff review.</p>
+            <h1>Admin Dashboard</h1>
+            <p className="page-subtitle">Overview of library operations</p>
+
+            <div className="member-stats">
+              <div className="stat-card">
+                <div>
+                  <p>Total Books</p>
+                  <h2>{books.length}</h2>
+                </div>
+                <span>📘</span>
+              </div>
+
+              <div className="stat-card">
+                <div>
+                  <p>Available Copies</p>
+                  <h2>{books.reduce((total, book) => total + Number(book.availableCopies || 0), 0)}</h2>
+                </div>
+                <span>✅</span>
+              </div>
+
+              <div className="stat-card">
+                <div>
+                  <p>Reservations</p>
+                  <h2>1</h2>
+                </div>
+                <span>📅</span>
+              </div>
+
+              <div className="stat-card">
+                <div>
+                  <p>Books Borrowed</p>
+                  <h2>{borrowedBooks.length}</h2>
+                </div>
+                <span>📖</span>
+              </div>
             </div>
-          </div>
 
-          <div className="dashboard-card admin-task-card">
-            <h3>Admin Tasks</h3>
-            <p>
-              Use the admin tools to add new books, update catalogue information,
-              remove outdated records, and review library activity.
-            </p>
+            <div className="admin-panels">
+              <div className="dashboard-card">
+                <h3>Borrowing Overview</h3>
+                <div className="chart-placeholder">
+                  <p>Borrowing and return trends are monitored here.</p>
+                  <div className="fake-line"></div>
+                </div>
+              </div>
 
-            <div className="action-row left-actions">
+              <div className="dashboard-card">
+                <h3>Books by Category</h3>
+                <div className="category-list">
+                  <p>Picture Books: 35%</p>
+                  <p>Chapter Books: 25%</p>
+                  <p>Fantasy: 20%</p>
+                  <p>Realistic Fiction: 12%</p>
+                </div>
+              </div>
+
+              <div className="dashboard-card">
+                <h3>Recent Activity</h3>
+                <div className="activity-row">📘 Member borrowed The Very Hungry Caterpillar</div>
+                <div className="activity-row">✏️ Admin updated catalogue details</div>
+                <div className="activity-row">📚 New book added to collection</div>
+              </div>
+
+              <div className="dashboard-card">
+                <h3>Alerts & Issues</h3>
+                <div className="alert-row danger">⚠️ Low stock: Harry Potter series</div>
+                <div className="alert-row warning">🔔 Pending reservation requires review</div>
+                <div className="alert-row info">ℹ️ Catalogue recently updated</div>
+              </div>
+            </div>
+
+            <div className="dashboard-card quick-actions">
+              <h3>Quick Actions</h3>
               <button onClick={() => setPage("manageBooks")}>Manage Books</button>
-              <button className="secondary-button" onClick={() => setPage("catalogue")}>
+              <button className="outline-button" onClick={() => setPage("catalogue")}>
                 View Catalogue
               </button>
             </div>
-          </div>
+          </main>
         </section>
       )}
 
@@ -517,7 +705,7 @@ const saveBookChanges = async () => {
             Add new book records and manage existing catalogue entries.
           </p>
 
-          <form onSubmit={addBook} className="book-form">
+          <form onSubmit={addBook} className="book-form manage-form-card">
             <h2>Add New Book</h2>
 
             <input placeholder="Title" value={newBook.title} onChange={(e) => setNewBook({ ...newBook, title: e.target.value })} />
@@ -538,7 +726,7 @@ const saveBookChanges = async () => {
           </form>
 
           {editingBook && (
-            <div className="dashboard-card">
+            <div className="manage-form-card">
               <h2>Edit Book</h2>
 
               <input
@@ -610,16 +798,18 @@ const saveBookChanges = async () => {
                 }
               />
 
-              <button onClick={saveBookChanges}>
-                Save Changes
-              </button>
+              <div className="edit-actions">
+                <button onClick={saveBookChanges}>
+                  Save Changes
+                </button>
 
-              <button
-                className="secondary-button"
-                onClick={() => setEditingBook(null)}
-              >
-                Cancel
-              </button>
+                <button
+                  className="secondary-button"
+                  onClick={() => setEditingBook(null)}
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           )}
 
