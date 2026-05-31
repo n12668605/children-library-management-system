@@ -13,6 +13,7 @@ function App() {
   const [userRole, setUserRole] = useState("guest");
   const [borrowedBooks, setBorrowedBooks] = useState([]);
   const [selectedBook, setSelectedBook] = useState(null);
+  const [editingBook, setEditingBook] = useState(null);
 
   const [newBook, setNewBook] = useState({
     title: "",
@@ -77,7 +78,7 @@ function App() {
     alert(`You have borrowed "${book.title}".`);
   };
 
-  const returnBook = (bookToReturn, borrowedIndex) => {
+   const returnBook = (bookToReturn, borrowedIndex) => {
   setBorrowedBooks(
     borrowedBooks.filter((_, index) => index !== borrowedIndex)
   );
@@ -135,6 +136,42 @@ function App() {
       status: "Available",
     });
   };
+
+const saveBookChanges = async () => {
+  try {
+    const response = await fetch(
+      `http://localhost:5000/api/books/${editingBook._id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...editingBook,
+          copies: Number(editingBook.copies),
+          availableCopies: Number(editingBook.availableCopies),
+        }),
+      }
+    );
+
+    const updatedBook = await response.json();
+
+    setBooks(
+      books.map((book) =>
+        book._id === updatedBook._id
+          ? updatedBook
+          : book
+      )
+    );
+
+    setEditingBook(null);
+
+    alert("Book updated successfully.");
+  } catch (error) {
+    console.error(error);
+    alert("Error updating book.");
+  }
+};
 
   const filteredBooks = books.filter((book) => {
     const title = book.title?.toLowerCase() || "";
@@ -410,6 +447,7 @@ function App() {
                 {borrowedBooks.map((book, index) => (
                   <li key={`${book._id}-${index}`}>
                     <span>{book.title} by {book.author}</span>
+
                     <button
                       className="secondary-button"
                       onClick={() => returnBook(book, index)}
@@ -499,6 +537,92 @@ function App() {
             <button type="submit">Add Book</button>
           </form>
 
+          {editingBook && (
+            <div className="dashboard-card">
+              <h2>Edit Book</h2>
+
+              <input
+                placeholder="Title"
+                value={editingBook.title}
+                onChange={(e) =>
+                  setEditingBook({
+                    ...editingBook,
+                    title: e.target.value,
+                  })
+                }
+              />
+
+              <input
+                placeholder="Author"
+                value={editingBook.author}
+                onChange={(e) =>
+                  setEditingBook({
+                    ...editingBook,
+                    author: e.target.value,
+                  })
+                }
+              />
+
+              <input
+                placeholder="ISBN"
+                value={editingBook.isbn}
+                onChange={(e) => setEditingBook({ ...editingBook, isbn: e.target.value })}
+              />
+
+              <input
+                placeholder="Category"
+                value={editingBook.category}
+                onChange={(e) => setEditingBook({ ...editingBook, category: e.target.value })}
+              />
+
+              <input
+                placeholder="Age Range"
+                value={editingBook.ageRange}
+                onChange={(e) => setEditingBook({ ...editingBook, ageRange: e.target.value })}
+              />
+
+              <input
+                placeholder="Total Copies"
+                type="number"
+                value={editingBook.copies}
+                onChange={(e) =>
+                  setEditingBook({ ...editingBook, copies: Number(e.target.value) })
+                }
+              />
+
+              <input
+                placeholder="Available Copies"
+                type="number"
+                value={editingBook.availableCopies}
+                onChange={(e) =>
+                  setEditingBook({ ...editingBook, availableCopies: Number(e.target.value) })
+                }
+              />
+
+              <textarea
+                placeholder="Description"
+                value={editingBook.description}
+                onChange={(e) =>
+                  setEditingBook({
+                    ...editingBook,
+                    description: e.target.value,
+                  })
+                }
+              />
+
+              <button onClick={saveBookChanges}>
+                Save Changes
+              </button>
+
+              <button
+                className="secondary-button"
+                onClick={() => setEditingBook(null)}
+              >
+                Cancel
+              </button>
+            </div>
+          )}
+
           <div className="book-grid">
             {books.map((book) => (
               <div key={book._id} className="book-card">
@@ -508,7 +632,9 @@ function App() {
                 <p>{book.availableCopies} of {book.copies} available</p>
 
                 <div className="action-row">
-                  <button>Edit</button>
+                  <button onClick={() => setEditingBook(book)}>
+                    Edit
+                  </button>
                   <button className="danger-button" onClick={() => deleteBook(book._id)}>
                     Delete
                   </button>
