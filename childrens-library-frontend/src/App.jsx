@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./App.css";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 function App() {
   const [page, setPage] = useState("landing");
@@ -28,7 +29,7 @@ function App() {
   });
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/books")
+    fetch(`${API_BASE_URL}/api/books`)
       .then((response) => response.json())
       .then((data) => setBooks(data))
       .catch((error) => console.error("Error:", error));
@@ -96,7 +97,7 @@ function App() {
 
   const deleteBook = async (id) => {
     try {
-      await fetch(`http://localhost:5000/api/books/${id}`, {
+      await fetch(`${API_BASE_URL}/api/books/${id}`, {
         method: "DELETE",
       });
 
@@ -109,7 +110,7 @@ function App() {
   const addBook = async (e) => {
     e.preventDefault();
 
-    const response = await fetch("http://localhost:5000/api/books", {
+    const response = await fetch(`${API_BASE_URL}/api/books`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -140,7 +141,7 @@ function App() {
 const saveBookChanges = async () => {
   try {
     const response = await fetch(
-      `http://localhost:5000/api/books/${editingBook._id}`,
+      `${API_BASE_URL}/api/books/${editingBook._id}`,
       {
         method: "PUT",
         headers: {
