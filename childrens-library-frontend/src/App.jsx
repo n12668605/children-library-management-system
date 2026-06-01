@@ -15,6 +15,12 @@ function App() {
   const [borrowedBooks, setBorrowedBooks] = useState([]);
   const [selectedBook, setSelectedBook] = useState(null);
   const [editingBook, setEditingBook] = useState(null);
+  const [registerName, setRegisterName] = useState("");
+  const [registerEmail, setRegisterEmail] = useState("");
+  const [registerPassword, setRegisterPassword] = useState("");
+  const [registerMessage, setRegisterMessage] = useState("");
+  const [currentUser, setCurrentUser] = useState(null);
+
 
   const [newBook, setNewBook] = useState({
     title: "",
@@ -35,17 +41,88 @@ function App() {
       .catch((error) => console.error("Error:", error));
   }, []);
 
-  const handleLogin = () => {
-    if (email === "admin@library.com" && password === "password123") {
-      setUserRole("admin");
+  useEffect(() => {
+    const savedUser = localStorage.getItem("user");
+
+    if (savedUser) {
+      const user = JSON.parse(savedUser);
+      setCurrentUser(user);
+      setUserRole(user.role || "member");
+      setPage(user.role === "admin" ? "admin" : "member");
+    }
+  }, []);
+
+  const handleLogin = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setLoginError(data.message || "Invalid email or password.");
+        return;
+      }
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data));
+      setCurrentUser(data);
+
+      setUserRole(data.role || "member");
       setLoginError("");
-      setPage("admin");
-    } else if (email === "member@library.com" && password === "password123") {
-      setUserRole("member");
-      setLoginError("");
-      setPage("member");
-    } else {
-      setLoginError("Invalid email or password.");
+      setPage(data.role === "admin" ? "admin" : "member");
+    } catch (error) {
+      console.error(error);
+      setLoginError("Unable to connect to server.");
+    }
+  };
+
+  const handleRegister = async () => {
+    if (!registerName || !registerEmail || !registerPassword) {
+      setRegisterMessage("Please complete all registration fields.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: registerName,
+          email: registerEmail,
+          password: registerPassword,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setRegisterMessage(data.message || "Registration failed.");
+        return;
+      }
+
+      setRegisterMessage("Registration successful. You can now sign in.");
+      setEmail(registerEmail);
+      setPassword("");
+
+      setRegisterName("");
+      setRegisterEmail("");
+      setRegisterPassword("");
+
+      setTimeout(() => {
+        setPage("login");
+        setRegisterMessage("");
+      }, 1500);
+    } catch (error) {
+      console.error(error);
+      setRegisterMessage("Unable to connect to server.");
     }
   };
 
@@ -199,6 +276,7 @@ const saveBookChanges = async () => {
           <h2 className="page-nav-title">
             {page === "catalogue" && "Browse Our Collection"}
             {page === "login" && "Sign In"}
+            {page === "register" && "Register"}
             {page === "member" && "Member Dashboard"}
             {page === "admin" && "Admin Dashboard"}
             {page === "manageBooks" && "Manage Books"}
@@ -210,7 +288,7 @@ const saveBookChanges = async () => {
                 <button className="outline-button" onClick={() => setPage("login")}>
                   Sign In
                 </button>
-                <button onClick={() => setPage("login")}>
+                <button onClick={() => setPage("register")}>
                   Register
                 </button>
               </>
@@ -221,11 +299,15 @@ const saveBookChanges = async () => {
                 </button>
                 <button
                   onClick={() => {
-                    setUserRole("guest");
-                    setBorrowedBooks([]);
-                    setEmail("");
-                    setPassword("");
-                    setPage("landing");
+                      setCurrentUser(null);
+                      localStorage.removeItem("user");
+                      localStorage.removeItem("token");
+
+                      setUserRole("guest");
+                      setBorrowedBooks([]);
+                      setEmail("");
+                      setPassword("");
+                      setPage("landing");
                   }}
                 >
                   Logout
@@ -238,11 +320,15 @@ const saveBookChanges = async () => {
                 </button>
                 <button
                   onClick={() => {
-                    setUserRole("guest");
-                    setBorrowedBooks([]);
-                    setEmail("");
-                    setPassword("");
-                    setPage("landing");
+                        setCurrentUser(null);
+                        localStorage.removeItem("user");
+                        localStorage.removeItem("token");
+
+                        setUserRole("guest");
+                        setBorrowedBooks([]);
+                        setEmail("");
+                        setPassword("");
+                        setPage("landing");
                   }}
                 >
                   Logout
@@ -327,7 +413,68 @@ const saveBookChanges = async () => {
             </button>
 
             <p className="register-text">
-              Don't have an account? <span>Register here</span>
+              Don't have an account? <span
+                style={{ cursor: "pointer" }}
+                onClick={() => setPage("register")}
+              >
+                Register here
+              </span>
+            </p>
+          </div>
+        </section>
+      )}
+
+      {page === "register" && (
+        <section className="login-page">
+          <div className="login-card">
+            <div className="hero-icon">📚</div>
+
+            <h1>Create Account</h1>
+            <p className="page-subtitle">Register as a library member</p>
+
+            <label>Full Name *</label>
+            <input
+              type="text"
+              placeholder="Full Name"
+              value={registerName}
+              onChange={(e) => setRegisterName(e.target.value)}
+            />
+
+            <label>Email Address *</label>
+            <input
+              type="email"
+              placeholder="Email"
+              value={registerEmail}
+              onChange={(e) => setRegisterEmail(e.target.value)}
+            />
+
+            <label>Password *</label>
+            <input
+              type="password"
+              placeholder="Password"
+              value={registerPassword}
+              onChange={(e) => setRegisterPassword(e.target.value)}
+            />
+
+            {registerMessage && (
+              <p className="success-text">{registerMessage}</p>
+            )}
+
+            <button
+              className="gradient-button"
+              onClick={handleRegister}
+            >
+              Create Account
+            </button>
+
+            <p className="register-text">
+              Already have an account?{" "}
+              <span
+                style={{ cursor: "pointer" }}
+                onClick={() => setPage("login")}
+              >
+                Sign In
+              </span>
             </p>
           </div>
         </section>
@@ -467,13 +614,17 @@ const saveBookChanges = async () => {
             <button>Notifications</button>
 
             <div className="member-profile">
-              <strong>Member User</strong>
-              <p>member@library.com</p>
+              <strong>{currentUser?.name || "Member User"}</strong>
+              <p>{currentUser?.email || "member@library.com"}</p>
             </div>
 
             <button
               className="logout-button"
               onClick={() => {
+                setCurrentUser(null);
+                localStorage.removeItem("user");
+                localStorage.removeItem("token");
+
                 setUserRole("guest");
                 setBorrowedBooks([]);
                 setPage("landing");
@@ -485,7 +636,7 @@ const saveBookChanges = async () => {
 
           <main className="member-main">
             <div className="member-topline">
-              <h3>Welcome, Member User!</h3>
+              <h3>Welcome, {currentUser?.name || "Member User"}!</h3>
               <p>Today: Sunday, May 31, 2026</p>
             </div>
 
@@ -601,6 +752,10 @@ const saveBookChanges = async () => {
             <button
               className="logout-button"
               onClick={() => {
+                setCurrentUser(null);
+                localStorage.removeItem("user");
+                localStorage.removeItem("token");
+
                 setUserRole("guest");
                 setEmail("");
                 setPassword("");
