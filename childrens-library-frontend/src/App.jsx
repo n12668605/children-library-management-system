@@ -291,6 +291,8 @@ const saveBookChanges = async () => {
             {page === "admin" && "Admin Dashboard"}
             {page === "manageBooks" && "Manage Books"}
             {page === "borrowedBooks" && "Borrowed Books"}
+            {page === "manageMembers" && "Manage Members"}
+            {page === "reports" && "Reports"}
           </h2>
 
           <div className="top-bar-actions">
@@ -618,11 +620,17 @@ const saveBookChanges = async () => {
             <h2>📚 Kids Library</h2>
             <p>Member Portal</p>
 
-            <button>Dashboard</button>
-            <button onClick={() => setPage("catalogue")}>Browse Books</button>
-            <button>My Books</button>
-            <button>Reservations</button>
-            <button>Notifications</button>
+            <button onClick={() => setPage("member")}>
+              Dashboard
+            </button>
+
+            <button onClick={() => setPage("catalogue")}>
+              Browse Books
+            </button>
+
+            <button onClick={() => setPage("member")}>
+              My Books
+            </button>
 
             <div className="member-profile">
               <strong>{currentUser?.name || "Member User"}</strong>
@@ -736,8 +744,6 @@ const saveBookChanges = async () => {
             <div className="dashboard-card quick-actions">
               <h3>Quick Actions</h3>
               <button onClick={() => setPage("catalogue")}>Browse Books</button>
-              <button className="outline-button">My Reservations</button>
-              <button className="outline-button">Edit Profile</button>
             </div>
           </main>
         </section>
@@ -749,9 +755,16 @@ const saveBookChanges = async () => {
             <h2>🛡️ Kids Library</h2>
             <p>Admin Panel</p>
 
-            <button>Dashboard</button>
-            <button onClick={() => setPage("manageBooks")}>Manage Books</button>
-            <button>Manage Members</button>
+            <button onClick={() => setPage("admin")}>Dashboard</button>
+
+            <button onClick={() => setPage("manageBooks")}>
+              Manage Books
+            </button>
+
+            <button onClick={() => setPage("manageMembers")}>
+              Manage Members
+            </button>
+
             <button
               onClick={() => {
                 setPage("borrowedBooks");
@@ -760,7 +773,10 @@ const saveBookChanges = async () => {
             >
               Borrowed Books
             </button>
-            <button>Reports</button>
+
+            <button onClick={() => setPage("reports")}>
+              Reports
+            </button>
 
             <div className="member-profile">
               <strong>Admin User</strong>
@@ -878,6 +894,40 @@ const saveBookChanges = async () => {
               </button>
             </div>
           </main>
+        </section>
+      )}
+
+      {page === "manageMembers" && (
+        <section>
+          <h1>Manage Members</h1>
+          <p className="page-subtitle">
+            Admin can view and manage library member accounts.
+          </p>
+
+          <div className="dashboard-card">
+            <h3>Feature under development</h3>
+            <p>
+              This section is reserved for future member account management,
+              including viewing, editing, and removing library members.
+            </p>
+          </div>
+        </section>
+      )}
+
+      {page === "reports" && (
+        <section>
+          <h1>Reports</h1>
+          <p className="page-subtitle">
+            Admin can review borrowing, reservation, and catalogue activity.
+          </p>
+
+          <div className="dashboard-card">
+            <h3>Feature under development</h3>
+            <p>
+              This section is reserved for future reporting features, including
+              borrowing trends, overdue books, and catalogue summaries.
+            </p>
+          </div>
         </section>
       )}
 
