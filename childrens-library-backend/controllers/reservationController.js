@@ -21,6 +21,20 @@ const getReservations = async (req, res) => {
   }
 };
 
+const getBorrowedBooks = async (req, res) => {
+  try {
+    const borrowedBooks = await Reservation.find({
+      reservationStatus: "Borrowed",
+    })
+      .populate("book")
+      .populate("member");
+
+    res.json(borrowedBooks);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 const getReservationById = async (req, res) => {
   try {
     const reservation = await Reservation.findById(req.params.id)
@@ -60,6 +74,62 @@ const updateReservation = async (req, res) => {
   }
 };
 
+const markReservationAsBorrowed = async (req, res) => {
+  try {
+    const dueDate = new Date();
+    dueDate.setDate(dueDate.getDate() + 14);
+
+    const reservation = await Reservation.findByIdAndUpdate(
+      req.params.id,
+      {
+        reservationStatus: "Borrowed",
+        borrowedDate: new Date(),
+        dueDate: dueDate,
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    )
+      .populate("book")
+      .populate("member");
+
+    if (!reservation) {
+      return res.status(404).json({ message: "Reservation not found" });
+    }
+
+    res.json(reservation);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+const markReservationAsReturned = async (req, res) => {
+  try {
+    const reservation = await Reservation.findByIdAndUpdate(
+      req.params.id,
+      {
+        reservationStatus: "Returned",
+        returnedDate: new Date(),
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    )
+      .populate("book")
+      .populate("member");
+
+    if (!reservation) {
+      return res.status(404).json({ message: "Reservation not found" });
+    }
+
+    res.json(reservation);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
 const deleteReservation = async (req, res) => {
   try {
     const reservation = await Reservation.findByIdAndDelete(req.params.id);
@@ -77,7 +147,10 @@ const deleteReservation = async (req, res) => {
 module.exports = {
   createReservation,
   getReservations,
+  getBorrowedBooks,
   getReservationById,
   updateReservation,
+  markReservationAsBorrowed,
+  markReservationAsReturned,
   deleteReservation,
 };
