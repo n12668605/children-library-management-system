@@ -174,11 +174,19 @@ function App() {
 
   const fetchBorrowedBooks = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/reservations/borrowed`);
+      const response = await fetch(`${API_BASE_URL}/api/reservations/status/borrowed`);
       const data = await response.json();
+
+      if (!response.ok || !Array.isArray(data)) {
+        console.error("Error fetching borrowed books:", data);
+        setBorrowedBooks([]);
+        return;
+      }
+
       setBorrowedBooks(data);
     } catch (error) {
       console.error("Error fetching borrowed books:", error);
+      setBorrowedBooks([]);
     }
   };
 

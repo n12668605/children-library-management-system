@@ -13,10 +13,12 @@ const {
 const router = express.Router();
 
 router.post("/", createReservation);
+
 router.get("/", getReservations);
 
-// Must be above /:id
+// Borrowed routes must be above /:id
 router.get("/borrowed", getBorrowedBooks);
+router.get("/status/borrowed", getBorrowedBooks);
 
 router.get("/:id", getReservationById);
 router.put("/:id", updateReservation);
