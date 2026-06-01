@@ -10,13 +10,20 @@ const reservationSchema = new mongoose.Schema(
 
     member: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Member",
+      ref: "User",
       required: true,
     },
 
     reservationStatus: {
       type: String,
-      enum: ["Pending", "Ready for Pickup", "Collected", "Cancelled"],
+      enum: [
+        "Pending",
+        "Ready for Pickup",
+        "Collected",
+        "Borrowed",
+        "Returned",
+        "Cancelled",
+      ],
       default: "Pending",
     },
 
@@ -26,6 +33,18 @@ const reservationSchema = new mongoose.Schema(
     },
 
     pickupDeadline: {
+      type: Date,
+    },
+
+    borrowedDate: {
+      type: Date,
+    },
+
+    dueDate: {
+      type: Date,
+    },
+
+    returnedDate: {
       type: Date,
     },
   },
