@@ -52,6 +52,12 @@ function App() {
     }
   }, []);
 
+  useEffect(() => {
+    if (page === "member" && userRole === "member" && currentUser) {
+      fetchMemberBorrowedBooks();
+    }
+  }, [page, userRole, currentUser]);
+
   const handleLogin = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
@@ -126,7 +132,7 @@ function App() {
     }
   };
 
-  const borrowBook = (book) => {
+  const borrowBook = async (book) => {
     if (userRole === "guest") {
       alert("Please log in as a member to borrow books.");
       setPage("login");
@@ -143,34 +149,116 @@ function App() {
       return;
     }
 
-    setBooks(
-      books.map((item) =>
-        item._id === book._id
-          ? { ...item, availableCopies: item.availableCopies - 1 }
-          : item
-      )
-    );
+    const memberId = currentUser?._id || currentUser?.id;
 
-    setBorrowedBooks([...borrowedBooks, book]);
+    if (!memberId) {
+      alert("User details could not be found. Please log in again.");
+      return;
+    }
 
-    alert(`You have borrowed "${book.title}".`);
+    try {
+      const dueDate = new Date();
+      dueDate.setDate(dueDate.getDate() + 14);
+
+      const reservationResponse = await fetch(`${API_BASE_URL}/api/reservations`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          book: book._id,
+          member: memberId,
+          reservationStatus: "Borrowed",
+          borrowedDate: new Date(),
+          dueDate: dueDate,
+        }),
+      });
+
+      const reservationData = await reservationResponse.json();
+
+      if (!reservationResponse.ok) {
+        alert(reservationData.message || "Unable to borrow book.");
+        return;
+      }
+
+      const updatedBook = {
+        ...book,
+        availableCopies: Number(book.availableCopies) - 1,
+      };
+
+      const bookResponse = await fetch(`${API_BASE_URL}/api/books/${book._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedBook),
+      });
+
+      if (!bookResponse.ok) {
+        alert("Reservation was created, but book availability could not be updated.");
+        return;
+      }
+
+      setBooks(
+        books.map((item) =>
+          item._id === book._id ? updatedBook : item
+        )
+      );
+
+      setBorrowedBooks([
+        ...borrowedBooks,
+        {
+          ...reservationData,
+          book: updatedBook,
+        },
+      ]);
+
+      alert(`You have borrowed "${book.title}".`);
+    } catch (error) {
+      console.error(error);
+      alert("Unable to borrow book.");
+    }
   };
 
-   const returnBook = (bookToReturn, borrowedIndex) => {
-  setBorrowedBooks(
-    borrowedBooks.filter((_, index) => index !== borrowedIndex)
-  );
+  const returnBook = async (borrowedItem, borrowedIndex) => {
+    const bookToReturn = borrowedItem.book || borrowedItem;
 
-  setBooks(
-    books.map((book) =>
-      book._id === bookToReturn._id
-        ? { ...book, availableCopies: book.availableCopies + 1 }
-        : book
-    )
-  );
+    try {
+      if (borrowedItem.reservationStatus === "Borrowed") {
+        await fetch(`${API_BASE_URL}/api/reservations/${borrowedItem._id}/return`, {
+          method: "PUT",
+        });
+      }
 
-  alert(`You have returned "${bookToReturn.title}".`);
-};
+      const updatedBook = {
+        ...bookToReturn,
+        availableCopies: Number(bookToReturn.availableCopies) + 1,
+      };
+
+      await fetch(`${API_BASE_URL}/api/books/${bookToReturn._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedBook),
+      });
+
+      setBorrowedBooks(
+        borrowedBooks.filter((_, index) => index !== borrowedIndex)
+      );
+
+      setBooks(
+        books.map((book) =>
+          book._id === bookToReturn._id ? updatedBook : book
+        )
+      );
+
+      alert(`You have returned "${bookToReturn.title}".`);
+    } catch (error) {
+      console.error(error);
+      alert("Unable to return book.");
+    }
+  };
 
   const fetchBorrowedBooks = async () => {
     try {
@@ -186,6 +274,47 @@ function App() {
       setBorrowedBooks(data);
     } catch (error) {
       console.error("Error fetching borrowed books:", error);
+      setBorrowedBooks([]);
+    }
+  };
+
+  const fetchMemberBorrowedBooks = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/reservations/status/borrowed`);
+      const data = await response.json();
+
+      if (!response.ok || !Array.isArray(data)) {
+        setBorrowedBooks([]);
+        return;
+      }
+
+      const memberId =
+        currentUser?._id ||
+        currentUser?.id ||
+        currentUser?.user?._id ||
+        currentUser?.user?.id;
+
+      const memberEmail =
+        currentUser?.email ||
+        currentUser?.user?.email;
+
+      const memberBorrowedBooks = data.filter((item) => {
+        const reservationMemberId =
+          item.member?._id ||
+          item.member?.id;
+
+        const reservationMemberEmail =
+          item.member?.email;
+
+        return (
+          reservationMemberId === memberId ||
+          reservationMemberEmail === memberEmail
+        );
+      });
+
+      setBorrowedBooks(memberBorrowedBooks);
+    } catch (error) {
+      console.error("Error fetching member borrowed books:", error);
       setBorrowedBooks([]);
     }
   };
@@ -711,21 +840,25 @@ const saveBookChanges = async () => {
                 {borrowedBooks.length === 0 ? (
                   <p>No books borrowed yet.</p>
                 ) : (
-                  borrowedBooks.map((book, index) => (
-                    <div className="borrowed-row" key={`${book._id}-${index}`}>
-                      <div className="mini-cover">📖</div>
-                      <div>
-                        <h4>{book.title}</h4>
-                        <p>by {book.author}</p>
-                        <button
-                          className="secondary-button"
-                          onClick={() => returnBook(book, index)}
-                        >
-                          Return Book
-                        </button>
-                      </div>
-                    </div>
-                  ))
+                    borrowedBooks.map((item, index) => {
+                      const book = item.book || item;
+
+                      return (
+                        <div className="borrowed-row" key={`${item._id}-${index}`}>
+                          <div className="mini-cover">📖</div>
+                          <div>
+                            <h4>{book.title}</h4>
+                            <p>by {book.author}</p>
+                            <button
+                              className="secondary-button"
+                              onClick={() => returnBook(item, index)}
+                            >
+                              Return Book
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })
                 )}
 
                 <button className="wide-button" onClick={() => setPage("catalogue")}>
