@@ -172,6 +172,16 @@ function App() {
   alert(`You have returned "${bookToReturn.title}".`);
 };
 
+  const fetchBorrowedBooks = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/reservations/borrowed`);
+      const data = await response.json();
+      setBorrowedBooks(data);
+    } catch (error) {
+      console.error("Error fetching borrowed books:", error);
+    }
+  };
+
   const deleteBook = async (id) => {
     try {
       await fetch(`${API_BASE_URL}/api/books/${id}`, {
@@ -280,6 +290,7 @@ const saveBookChanges = async () => {
             {page === "member" && "Member Dashboard"}
             {page === "admin" && "Admin Dashboard"}
             {page === "manageBooks" && "Manage Books"}
+            {page === "borrowedBooks" && "Borrowed Books"}
           </h2>
 
           <div className="top-bar-actions">
@@ -741,7 +752,14 @@ const saveBookChanges = async () => {
             <button>Dashboard</button>
             <button onClick={() => setPage("manageBooks")}>Manage Books</button>
             <button>Manage Members</button>
-            <button>Reservations</button>
+            <button
+              onClick={() => {
+                setPage("borrowedBooks");
+                fetchBorrowedBooks();
+              }}
+            >
+              Borrowed Books
+            </button>
             <button>Reports</button>
 
             <div className="member-profile">
@@ -846,11 +864,67 @@ const saveBookChanges = async () => {
             <div className="dashboard-card quick-actions">
               <h3>Quick Actions</h3>
               <button onClick={() => setPage("manageBooks")}>Manage Books</button>
+              <button
+                className="outline-button"
+                onClick={() => {
+                  setPage("borrowedBooks");
+                  fetchBorrowedBooks();
+                }}
+              >
+                View Borrowed Books
+              </button>
               <button className="outline-button" onClick={() => setPage("catalogue")}>
                 View Catalogue
               </button>
             </div>
           </main>
+        </section>
+      )}
+
+      {page === "borrowedBooks" && (
+        <section>
+          <h1>Borrowed Books</h1>
+          <p className="page-subtitle">
+            Admin can view which members currently have borrowed books.
+          </p>
+
+          {borrowedBooks.length === 0 ? (
+            <div className="dashboard-card">
+              <h3>No borrowed books found</h3>
+              <p>There are currently no books marked as borrowed.</p>
+            </div>
+          ) : (
+            <div className="dashboard-card">
+              {borrowedBooks.map((item) => (
+                <div className="borrowed-row" key={item._id}>
+                  <div className="mini-cover">📖</div>
+
+                  <div>
+                    <h3>{item.book?.title || "Unknown Book"}</h3>
+                    <p>
+                      <strong>Member:</strong>{" "}
+                      {item.member?.name || item.member?.email || "Unknown Member"}
+                    </p>
+                    <p>
+                      <strong>Status:</strong> {item.reservationStatus}
+                    </p>
+                    <p>
+                      <strong>Borrowed Date:</strong>{" "}
+                      {item.borrowedDate
+                        ? new Date(item.borrowedDate).toLocaleDateString()
+                        : "N/A"}
+                    </p>
+                    <p>
+                      <strong>Due Date:</strong>{" "}
+                      {item.dueDate
+                        ? new Date(item.dueDate).toLocaleDateString()
+                        : "N/A"}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </section>
       )}
 
