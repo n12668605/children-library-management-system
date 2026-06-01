@@ -1,40 +1,16 @@
-name: CI Pipeline
+name: CI/CD Pipeline
 
 on:
   push:
     branches:
       - main
-      - "feature/**"
   pull_request:
     branches:
       - main
 
 jobs:
-  frontend-build:
-    name: Frontend Build
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Install frontend dependencies
-        run: |
-          cd childrens-library-frontend
-          npm install
-
-      - name: Build frontend
-        run: |
-          cd childrens-library-frontend
-          npm run build
-
-  backend-check:
-    name: Backend Dependency Check
+  build-and-test:
+    name: Build and Test
     runs-on: ubuntu-latest
 
     steps:
@@ -50,3 +26,65 @@ jobs:
         run: |
           cd childrens-library-backend
           npm install
+
+      - name: Install frontend dependencies
+        run: |
+          cd childrens-library-frontend
+          npm install
+
+      - name: Build frontend
+        run: |
+          cd childrens-library-frontend
+          npm run build
+
+  deploy:
+    name: Deploy to EC2
+    needs: build-and-test
+    runs-on: self-hosted
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create backend env
+        run: |
+          cd childrens-library-backend
+          echo "PORT=${{ secrets.PORT }}" > .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> .env
+
+      - name: Install backend dependencies
+        run: |
+          cd childrens-library-backend
+          npm install
+
+      - name: Restart backend with PM2
+        run: |
+          cd childrens-library-backend
+          pm2 restart library-backend || pm2 start server.js --name library-backend
+          pm2 save
+
+      - name: Create frontend env
+        run: |
+          cd childrens-library-frontend
+          echo "VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }}" > .env
+
+      - name: Install frontend dependencies
+        run: |
+          cd childrens-library-frontend
+          npm install
+
+      - name: Build frontend
+        run: |
+          cd childrens-library-frontend
+          npm run build
+
+      - name: Deploy frontend to Nginx
+        run: |
+          sudo rm -rf /var/www/html/*
+          sudo cp -r childrens-library-frontend/dist/* /var/www/html/
+
+      - name: Show PM2 status
+        run: |
+          pm2 status
