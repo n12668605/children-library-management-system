@@ -21,6 +21,12 @@ function App() {
   const [registerMessage, setRegisterMessage] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
 
+  const todayText = new Date().toLocaleDateString("en-AU", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 
   const [newBook, setNewBook] = useState({
     title: "",
@@ -416,8 +422,19 @@ const saveBookChanges = async () => {
     <div className="app">
       {page !== "landing" && (
         <nav className="top-bar">
-          <button className="back-link" onClick={() => setPage("landing")}>
-            ← Back to Home
+          <button
+            className="back-link"
+            onClick={() => {
+              if (userRole === "admin") {
+                setPage("admin");
+              } else if (userRole === "member") {
+                setPage("member");
+              } else {
+                setPage("landing");
+              }
+            }}
+          >
+            {userRole === "guest" ? "← Back to Home" : "← Back to Dashboard"}
           </button>
 
           <h2 className="page-nav-title">
@@ -793,7 +810,7 @@ const saveBookChanges = async () => {
           <main className="member-main">
             <div className="member-topline">
               <h3>Welcome, {currentUser?.name || "Member User"}!</h3>
-              <p>Today: Sunday, May 31, 2026</p>
+              <p>Today: {todayText}</p>
             </div>
 
             <h1>Dashboard</h1>
@@ -806,14 +823,6 @@ const saveBookChanges = async () => {
                   <h2>{borrowedBooks.length}</h2>
                 </div>
                 <span>📖</span>
-              </div>
-
-              <div className="stat-card">
-                <div>
-                  <p>Active Reservations</p>
-                  <h2>1</h2>
-                </div>
-                <span>📅</span>
               </div>
 
               <div className="stat-card">
@@ -865,21 +874,7 @@ const saveBookChanges = async () => {
                   View All
                 </button>
               </div>
-
-              <div className="dashboard-card">
-                <h3>Active Reservations</h3>
-
-                <div className="borrowed-row">
-                  <div className="mini-cover">📚</div>
-                  <div>
-                    <h4>Harry Potter and the Philosopher's Stone</h4>
-                    <p>Reserved: Demo data</p>
-                    <span className="small-badge">Pending</span>
-                  </div>
-                </div>
-
-                <button className="wide-button">View All</button>
-              </div>
+              
             </div>
 
             <div className="dashboard-card quick-actions">
@@ -944,7 +939,7 @@ const saveBookChanges = async () => {
           <main className="admin-main">
             <div className="member-topline">
               <h3>Admin Dashboard</h3>
-              <p>Sunday, May 31, 2026</p>
+              <p>{todayText}</p>
             </div>
 
             <h1>Admin Dashboard</h1>
@@ -967,15 +962,14 @@ const saveBookChanges = async () => {
                 <span>✅</span>
               </div>
 
-              <div className="stat-card">
-                <div>
-                  <p>Reservations</p>
-                  <h2>1</h2>
-                </div>
-                <span>📅</span>
-              </div>
-
-              <div className="stat-card">
+              <div
+                className="stat-card"
+                onClick={() => {
+                  setPage("borrowedBooks");
+                  fetchBorrowedBooks();
+                }}
+                style={{ cursor: "pointer" }}
+              >
                 <div>
                   <p>Books Borrowed</p>
                   <h2>{borrowedBooks.length}</h2>
@@ -1013,7 +1007,6 @@ const saveBookChanges = async () => {
               <div className="dashboard-card">
                 <h3>Alerts & Issues</h3>
                 <div className="alert-row danger">⚠️ Low stock: Harry Potter series</div>
-                <div className="alert-row warning">🔔 Pending reservation requires review</div>
                 <div className="alert-row info">ℹ️ Catalogue recently updated</div>
               </div>
             </div>
