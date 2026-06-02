@@ -64,6 +64,12 @@ function App() {
     }
   }, [page, userRole, currentUser]);
 
+  useEffect(() => {
+    if (page === "admin" && userRole === "admin") {
+      fetchBorrowedBooks();
+    }
+  }, [page, userRole]);
+
   const handleLogin = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
